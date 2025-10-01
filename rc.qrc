@@ -1,0 +1,12 @@
+<RCC>
+    <qresource prefix="/resource">
+        <file>resource/build.png</file>
+        <file>resource/close_16.png</file>
+        <file>resource/extract_16.png</file>
+        <file>resource/fmod.png</file>
+        <file>resource/fmod_bank_tools.ico</file>
+        <file>resource/Sound_Length.png</file>
+        <file>resource/wouldy_mods.png</file>
+		<file>resource/about_info_32.png</file>
+    </qresource>
+</RCC>
