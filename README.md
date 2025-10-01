@@ -1,4 +1,7 @@
 # Fmod Bank Tools
+
+![Title Image](https://staticdelivery.nexusmods.com/mods/1891/images/2/2-1757393867-2013881810.jpg)
+
 **How To Use:**  
   
 
@@ -26,17 +29,17 @@
 
 -   Now copy the encrypted bank file into the bank folder in the Fmod Bank Tools and click Extract. It will come up saying that the bank file is encrypted and it needs a password, just ignore that for now. Go to the fsb folder and copy that encrypted fsb file to the fsbext folder that you just downloaded. Know create a batch file and add the following command -
 
-![enter image description here](https://i.imgur.com/zqRUCk2.jpeg)
+![Image 1](https://i.imgur.com/zqRUCk2.jpeg)
 
 Where it's got Weapons.fsb, rename it to your .fsb file.  
   
 -   Ok load up the batch file, it should show something like this -
 
-![enter image description here](https://i.imgur.com/3jgpyGM.jpeg)
+![Image 2](https://i.imgur.com/3jgpyGM.jpeg)
 
 Type ? and hit Enter and you should get this -
 
-![enter image description here](https://i.imgur.com/vl1GSZD.jpeg)
+![Image 3](https://i.imgur.com/vl1GSZD.jpeg)
 
 I have the password highlighted under the - encryption type 2. You will see under the highlight password it's the same password, that means you have the right one.  
   
