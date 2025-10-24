@@ -66,14 +66,14 @@ int bank_extract::extract(QString bankPath)
     if (projString != "PROJ" || BnkiString != "BNKI")
         return check;
 
-    unsigned int sndh_offset = 0, sndh_size = 0;
+    unsigned int sndh_unknown = 0, sndh_fsbOffset = 0, sndh_fsbSize = 0;
 
     quint32 chunk_size;
     in >> chunk_size;
 
     file.seek(file.pos() + chunk_size);
 
-    while (sndh_offset == 0 && file.pos() < file.size())
+    while (sndh_fsbOffset == 0 && file.pos() < file.size())
     {
         quint32 chunk_type;
         in >> chunk_type;
@@ -84,27 +84,27 @@ int bank_extract::extract(QString bankPath)
         if (chunk_type == 0xFFFFFFFF || chunk_size == 0xFFFFFFFF)
             return check;
 
-        //qInfo() << "FSB5 FEV: chunk=" + QString::number(chunk_type) + " offset=" + QString::number((file.pos() - 0x08)) + " size=" + QString::number(chunk_size) + " \n";
+        //qInfo() << "FSB5 FEV: chunk = " + QString::number(chunk_type) + " offset = " + QString::number((file.pos() - 0x08)) + " size = " + QString::number(chunk_size) + " \n";
 
         switch(chunk_type)
         {
-           case 0x48444E53: /* "SNDH" */
-            file.seek(file.pos() + 4);
-            in >> sndh_offset;
-            in >> sndh_size;
+           case 0x48444E53: /* "SNDH" */;
+            in >> sndh_unknown;
+            in >> sndh_fsbOffset;
+            in >> sndh_fsbSize;
             break;
         }
 
         file.seek(file.pos() + chunk_size);
     }
 
-    if (sndh_offset == 0 || sndh_size == 0)
+    if (sndh_fsbOffset == 0 || sndh_fsbSize == 0)
     {
         check = 2;
         return check;
     }
 
-    file.seek(sndh_offset);
+    file.seek(sndh_fsbOffset);
 
     char* fsbStringArray = (char*)malloc(4);
     in.readRawData(fsbStringArray, 4);
@@ -116,10 +116,10 @@ int bank_extract::extract(QString bankPath)
     if (fsbMagic != "FSB5")
         check = 5;
 
-    file.seek(sndh_offset);
+    file.seek(sndh_fsbOffset);
 
-    char* fsbData = (char*)malloc(sndh_size);
-    in.readRawData(fsbData, sndh_size);
+    char* fsbData = (char*)malloc(sndh_fsbSize);
+    in.readRawData(fsbData, sndh_fsbSize);
 
     QString bankName = file.fileName();
 
@@ -134,7 +134,7 @@ int bank_extract::extract(QString bankPath)
         return 0;
 
     fsboutFile.open(QIODevice::WriteOnly);
-    fsboutFile.write(fsbData, sndh_size);
+    fsboutFile.write(fsbData, sndh_fsbSize);
     fsboutFile.flush();
     fsboutFile.close();
     free(fsbData);

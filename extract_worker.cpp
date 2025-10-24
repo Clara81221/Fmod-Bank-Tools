@@ -39,6 +39,7 @@ void ExtractWorker::extract_fsb()
 
     for (int i = 0; i < bankFileList.count(); i++)
     {
+        start:
         QString bankPath = bankDir + bankFileList[i];
         QStringList txtFileNames;
 
@@ -59,13 +60,17 @@ void ExtractWorker::extract_fsb()
         {
             emit taskFinished("Error extracting bank file !!!");
             emit progressUpdated(0);
-            return;
+
+            if (i < bankFileList.count() - 1) { i++; goto start; }
+            else return;
         }
         else if (errorCheck == 2)
         {
             emit taskFinished("Error, can't find any fsb audio in this bank file !!!");
             emit progressUpdated(0);
-            return;
+
+            if (i < bankFileList.count() - 1) { i++; goto start; }
+            else return;
         }
         else if (errorCheck == 5)
         {
@@ -90,11 +95,19 @@ void ExtractWorker::extract_fsb()
                 if (!password.isEmpty())
                     emit emit updateConsole("Decrypting bank file with password: " + encryptionkeyArray + "\n");
                 else
+                {
                     emit emit updateConsole("Can't find " + bankFileList[i].replace(".bank", ".txt") + " with password for decryption.\n");
+
+                    if (i < bankFileList.count() - 1) { i++; goto start; }
+                    else return;
+                }
             }
             else
             {
                 emit emit updateConsole("Can't find " + bankFileList[i].replace(".bank", ".txt") + " with password for decryption.\n");
+
+                if (i < bankFileList.count() - 1) { i++; goto start; }
+                else return;
             }
         }
 
@@ -105,49 +118,121 @@ void ExtractWorker::extract_fsb()
         {
             emit taskFinished("Error, fsb file is missing !!!");
             emit progressUpdated(0);
-            return;
-        }
 
-        QDir dir(wavDir);
-        dir.mkdir(bankFileInfo.fileName().replace(".bank", ""));
+            if (i < bankFileList.count() - 1) { i++; goto start; }
+            else return;
+        }
 
         /*
          Create a System object and initialize
         */
         result = FMOD_System_Create(&system);
-        if (result != FMOD_OK) { emit taskFinished(FMOD_ErrorString(result)); return; }
+
+        if (result != FMOD_OK)
+        {
+            emit taskFinished(FMOD_ErrorString(result));
+
+            if (i < bankFileList.count() - 1) { i++; goto start; }
+            else return;
+        }
 
         //result = system->getVersion(&version);
         //if (result != FMOD_OK) { emit taskFinished(FMOD_ErrorString(result)); return; }
 
         result = FMOD_System_Init(system, 1, FMOD_INIT_NORMAL, extradriverdata);
-        if (result != FMOD_OK) { emit taskFinished(FMOD_ErrorString(result)); return; }
+
+        if (result != FMOD_OK)
+        {
+            emit taskFinished(FMOD_ErrorString(result));
+
+            if (i < bankFileList.count() - 1) { i++; goto start; }
+            else return;
+        }
 
         result = FMOD_System_CreateSound(system, fsbPath.toUtf8().constData(), FMOD_OPENONLY, &exinfo, &sound);
-        if (result != FMOD_OK) { emit taskFinished(FMOD_ErrorString(result)); return; }
+
+        if (result != FMOD_OK)
+        {
+            emit taskFinished(FMOD_ErrorString(result));
+
+            if (i < bankFileList.count() - 1) { i++; goto start; }
+            else return;
+        }
+
+        QDir dir(wavDir);
+        dir.mkdir(bankFileInfo.fileName().replace(".bank", ""));
 
         result = FMOD_Sound_GetNumSubSounds(sound, &numsubsounds);
-        if (result != FMOD_OK) { emit taskFinished(FMOD_ErrorString(result)); return; }
+
+        if (result != FMOD_OK)
+        {
+            emit taskFinished(FMOD_ErrorString(result));
+
+            if (i < bankFileList.count()) { i++; goto start; }
+            else return;
+        }
 
         for (int j = 0; j < numsubsounds; j++)
         {
             result = FMOD_Sound_GetSubSound(sound, j, &sound_to_play);
-            if (result != FMOD_OK) { emit taskFinished(FMOD_ErrorString(result)); emit progressUpdated(0); return; }
+
+            if (result != FMOD_OK)
+            {
+                emit taskFinished(FMOD_ErrorString(result));
+
+                if (i < bankFileList.count() - 1) { i++; goto start; }
+                else return;
+            }
 
             result = FMOD_Sound_SeekData(sound_to_play, 0);
-            if (result != FMOD_OK) { emit taskFinished(FMOD_ErrorString(result)); emit progressUpdated(0); return; }
+
+            if (result != FMOD_OK)
+            {
+                emit taskFinished(FMOD_ErrorString(result));
+
+                if (i < bankFileList.count() - 1) { i++; goto start; }
+                else return;
+            }
 
             result = FMOD_Sound_GetDefaults(sound_to_play, &ssamplerate, &priority);
-            if (result != FMOD_OK) { emit taskFinished(FMOD_ErrorString(result)); emit progressUpdated(0); return; }
+
+            if (result != FMOD_OK)
+            {
+                emit taskFinished(FMOD_ErrorString(result));
+
+                if (i < bankFileList.count() - 1) { i++; goto start; }
+                else return;
+            }
 
             result = FMOD_Sound_GetFormat(sound_to_play, &stype, &sformat, &schannels, &sbits);
-            if (result != FMOD_OK) { emit taskFinished(FMOD_ErrorString(result)); emit progressUpdated(0); return; }
+
+            if (result != FMOD_OK)
+            {
+                emit taskFinished(FMOD_ErrorString(result));
+
+                if (i < bankFileList.count() - 1) { i++; goto start; }
+                else return;
+            }
 
             result = FMOD_Sound_GetLength(sound_to_play, &length, FMOD_TIMEUNIT_PCMBYTES);
-            if (result != FMOD_OK) { emit taskFinished(FMOD_ErrorString(result)); emit progressUpdated(0); return; }
+
+            if (result != FMOD_OK)
+            {
+                emit taskFinished(FMOD_ErrorString(result));
+
+                if (i < bankFileList.count() - 1) { i++; goto start; }
+                else return;
+            }
 
             result = FMOD_Sound_GetName(sound_to_play, subsoundsName, nameLength);
-            if (result != FMOD_OK) { emit taskFinished(FMOD_ErrorString(result)); emit progressUpdated(0); return; }
+
+            if (result != FMOD_OK)
+            {
+                emit taskFinished(FMOD_ErrorString(result));
+
+                if (i < bankFileList.count() - 1) { i++; goto start; }
+                else return;
+            }
 
             QString subsoundName = QString::fromUtf8(subsoundsName);
 
@@ -178,7 +263,6 @@ void ExtractWorker::extract_fsb()
                     emit taskFinished("Error reading wav data chunks !!!");
                     emit progressUpdated(0);
                     qInfo() << "Error reading wav data chunks !!!";
-                    return;
                 }
 
                 free(buffer);
@@ -197,6 +281,7 @@ void ExtractWorker::extract_fsb()
 
         free(extradriverdata);
         delete[] encryption;
+        exinfo.encryptionkey = NULL;
         FMOD_Sound_Release(sound_to_play);
         FMOD_Sound_Release(sound);
         FMOD_System_Release(system);
