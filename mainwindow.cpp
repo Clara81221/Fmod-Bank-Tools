@@ -122,11 +122,16 @@ void MainWindow::on_RebuildFolderButton_clicked()
     settings.endGroup();
 }
 
-void MainWindow::on_actionExtract_triggered()
+// Shared actions for buttons (extract, rebuild, info)
+void MainWindow::extract()
 {
     ui->consoleTextBox->clear();
 
-    ExtractWorker *extractWorker = new ExtractWorker();
+    QString password = ui->passwordTextBox->text().trimmed();
+    bool overrideEnabled = ui->overrideCheckBox->isChecked();
+
+    ExtractWorker *extractWorker = new ExtractWorker(password, overrideEnabled);
+
     QThread *thread = new QThread();
     extractWorker->moveToThread(thread); // Move extract_worker to the new thread
 
@@ -144,7 +149,7 @@ void MainWindow::on_actionExtract_triggered()
     thread->start(); // Start the thread
 }
 
-void MainWindow::on_actionRebuild_triggered()
+void MainWindow::rebuild()
 {
     ui->consoleTextBox->clear();
 
@@ -166,11 +171,27 @@ void MainWindow::on_actionRebuild_triggered()
     thread->start(); // Start the thread
 }
 
-void MainWindow::on_actionFSB_Info_triggered()
+void MainWindow::fsbinfo()
 {
     //Fmod_FSB_List fsbList;
     //fsbList.setModal(true);
     //fsbList.exec();
+}
+
+// Context Menu Buttons
+void MainWindow::on_actionExtract_triggered()
+{
+    extract();
+}
+
+void MainWindow::on_actionRebuild_triggered()
+{
+    rebuild();
+}
+
+void MainWindow::on_actionFSB_Info_triggered()
+{
+    fsbinfo();
 }
 
 void MainWindow::on_actionInfo_triggered()
@@ -180,23 +201,28 @@ void MainWindow::on_actionInfo_triggered()
     about.exec();
 }
 
-void MainWindow::handleProgressUpdate(int value)
+void MainWindow::on_actionExit_triggered()
 {
-    // Update a progress bar or text label on the UI
-    ui->progressBar->setValue(value);
+    QApplication::quit();
 }
 
-void MainWindow::handleConsoleUpdate(QString result)
+// Bottom of window UI
+
+void MainWindow::on_extractButton_clicked()
 {
-    ui->consoleTextBox->append(result);
-    // Auto-scroll
-    ui->consoleTextBox->ensureCursorVisible();
+    extract();
 }
 
-void MainWindow::handleWorkFinished(QString result)
+
+void MainWindow::on_fsbinfoButton_clicked()
 {
-    // Display the final result on the UI
-    ui->consoleTextBox->append(result);
+    rebuild();
+}
+
+
+void MainWindow::on_rebuildButton_clicked()
+{
+    fsbinfo();
 }
 
 void MainWindow::on_format_comboBox_currentIndexChanged(int index)
@@ -217,7 +243,34 @@ void MainWindow::on_quality_spinBox_valueChanged(int arg1)
     settings.endGroup();
 }
 
-void MainWindow::on_actionExit_triggered()
+// Update Handlers
+void MainWindow::handleProgressUpdate(int value)
 {
-    QApplication::quit();
+    // Update a progress bar or text label on the UI
+    ui->progressBar->setValue(value);
 }
+
+void MainWindow::handleConsoleUpdate(QString result)
+{
+    ui->consoleTextBox->append(result);
+    // Auto-scroll
+    ui->consoleTextBox->ensureCursorVisible();
+}
+
+void MainWindow::handleWorkFinished(QString result)
+{
+    // Display the final result on the UI
+    ui->consoleTextBox->append(result);
+}
+
+void MainWindow::on_passwordTextBox_textChanged(const QString &arg1)
+{
+    if (arg1.isEmpty()) {
+        ui->overrideCheckBox->setEnabled(false);
+        ui->overrideCheckBox->setChecked(false);
+    }
+    else {
+        ui->overrideCheckBox->setEnabled(true);
+    }
+}
+

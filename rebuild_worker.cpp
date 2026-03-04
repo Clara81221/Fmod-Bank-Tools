@@ -2,6 +2,7 @@
 #include "fileio.h"
 #include <QtConcurrent/QtConcurrent>
 #include <QFuture>
+#include <cstring>
 
 RebuildWorker::RebuildWorker(QObject *parent) : QObject(parent) {}
 

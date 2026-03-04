@@ -7,7 +7,7 @@
 class bank_extract
 {
 public:
-    static int extract(QString bankPath, quint32 &fsbCount);
+    static std::pair<int, QString> extract(QString bankPath, quint32 &fsbCount);
 private:
     static QString readString(QDataStream &in, int length);
 

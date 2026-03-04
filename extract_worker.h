@@ -7,15 +7,21 @@
 #include <QDir>
 #include <qsettings.h>
 #include <fmod_errors.h>
+#include <cstring>
 
 
 class ExtractWorker : public QObject
 {
     Q_OBJECT
 public:
-    explicit ExtractWorker(QObject *parent = nullptr);
+    explicit ExtractWorker(const QString &password,
+                           bool overrideEnabled,
+                           QObject *parent = nullptr);
 
 private:
+    QString m_password;
+    bool m_overrideEnabled;
+
     bool handleExtractionError(int errorCheck, const QString &bankFile, QString bankPath, FMOD_CREATESOUNDEXINFO &exinfo);
     bool handlePasswordProtectedBank(QString bankPath, FMOD_CREATESOUNDEXINFO &exinfo);
     bool processSubSounds(FMOD_SOUND *sound, QFileInfo bankFileInfo, const QString &wavDir, quint32 fsbIndex);

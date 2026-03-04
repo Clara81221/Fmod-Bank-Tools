@@ -1,8 +1,14 @@
 #include "extract_worker.h"
 #include "fileio.h"
 #include "bank_extract.h"
+#include <cstring>
 
-ExtractWorker::ExtractWorker(QObject *parent) : QObject(parent) {}
+ExtractWorker::ExtractWorker(const QString &password,
+                             bool overrideEnabled,
+                             QObject *parent) : QObject(parent),
+                                                m_password(password),
+                                                m_overrideEnabled(overrideEnabled)
+{}
 
 void ExtractWorker::extract_fsb()
 {
@@ -33,10 +39,16 @@ void ExtractWorker::extract_fsb()
         QString bankPath = bankDir + bankFile;
         QFileInfo bankFileInfo(bankPath);
         quint32 fsbCount;
-        int check = bank_extract::extract(bankPath, fsbCount);
+        auto extract_result = bank_extract::extract(bankPath, fsbCount);
+        int check = extract_result.first;
+        QString detailed_error = extract_result.second;
 
         QString newLineCheck = (i == 0) ? "" : "\n";
         emit updateConsole(newLineCheck + "Initializing Fmod Bank file - " + QFileInfo(bankPath).fileName() + "\n");
+        emit updateConsole("Code " + QString::fromStdString(std::to_string(check)) + ": " + detailed_error);
+        if (check == 5) {
+            emit updateConsole("File opened properly. Proceeding.\n\n");
+        }
 
         if (check != 1) // checking for encryption or error
         {
@@ -58,6 +70,7 @@ void ExtractWorker::extract_fsb()
             result = FMOD_System_Create(&system);
             if (result != FMOD_OK || (result = FMOD_System_Init(system, 1, FMOD_INIT_NORMAL, nullptr)) != FMOD_OK)
             {
+                emit updateConsole("Error in FMOD_System_Create");
                 emit taskFinished(FMOD_ErrorString(result));
                 continue;
             }
@@ -65,6 +78,7 @@ void ExtractWorker::extract_fsb()
             result = FMOD_System_CreateSound(system, fsbPath.toUtf8().constData(), FMOD_OPENONLY, &exinfo, &sound);
             if (result != FMOD_OK)
             {
+                emit updateConsole("Error in FMOD_System_CreateSound");
                 emit taskFinished(FMOD_ErrorString(result));
                 continue;
             }
@@ -125,20 +139,28 @@ bool ExtractWorker::handleExtractionError(int errorCheck, const QString &bankFil
 
 bool ExtractWorker::handlePasswordProtectedBank(QString bankPath, FMOD_CREATESOUNDEXINFO &exinfo)
 {
-    QString passwordTxT = bankPath.replace(".bank", ".txt");
+    emit updateConsole("Attempting decryption of \"" + bankPath + "\"");
 
-    // Check if the password text file exists
-    if (!QFileInfo::exists(passwordTxT)) {
-        emit updateConsole("Can't find " + passwordTxT + " with password for decryption.\n");
+    QString passwordTxT = bankPath.replace(".bank", ".txt");
+    QString password;
+
+    if (QFileInfo::exists(passwordTxT)) {
+        QString fileContent = readTextFileToQStringList(passwordTxT).constFirst();
+        if (!fileContent.isEmpty()) { // IF file exists AND is not empty
+            password = fileContent;
+            emit updateConsole("File \"" + passwordTxT + "\" gave password \"" + password + "\"");
+        } else if (fileContent.isEmpty() && m_password.isEmpty()) { // IF file empty AND textbox empty
+            emit updateConsole("ERROR: File \"" + passwordTxT + "\" is empty and no password was entered.\n");
+            return true;
+        }
+    } else if (m_password.isEmpty()) { // IF file does not exist AND textbox empty
+        emit updateConsole("ERROR: File \"" + passwordTxT + "\" does not exist and no password was entered.\n");
         return true;
     }
 
-    QString password = readTextFileToQStringList(passwordTxT).constFirst();
-
-    // Ensure the password list is not empty before accessing
-    if (password.isEmpty()) {
-        emit updateConsole("Password file is empty: " + passwordTxT + "\n");
-        return true;
+    if (password.isEmpty() || m_overrideEnabled) { // IF password was not set OR override enabled
+        password = QStringList({ m_password }).constFirst(); // set to textbox password
+        emit updateConsole("Using textbox password \"" + password + "\"");
     }
 
     // Convert password to QByteArray and manage memory safely
@@ -148,7 +170,8 @@ bool ExtractWorker::handlePasswordProtectedBank(QString bankPath, FMOD_CREATESOU
     exinfo.encryptionkey = encryption;
 
     // Emit console update based on password availability
-    emit updateConsole("Decrypting bank file with password: " + encryptionKeyArray + "\n");
+    emit updateConsole("Decrypting bank file with password: \"" + encryptionKeyArray + "\"\n");
+
     return false;
 }
 
@@ -169,6 +192,7 @@ bool ExtractWorker::processSubSounds(FMOD_SOUND *sound, QFileInfo bankFileInfo, 
     result = FMOD_Sound_GetNumSubSounds(sound, &numsubsounds);
     if (result != FMOD_OK)
     {
+        emit updateConsole("Error in FMOD_Sound_GetNumSubSounds");
         emit taskFinished(FMOD_ErrorString(result));
         return true;
     }
@@ -190,6 +214,7 @@ bool ExtractWorker::processSubSounds(FMOD_SOUND *sound, QFileInfo bankFileInfo, 
         result = FMOD_Sound_GetSubSound(sound, j, &sound_to_play);
         if (result != FMOD_OK)
         {
+            emit updateConsole("Error in FMOD_Sound_GetSubSound");
             emit taskFinished(FMOD_ErrorString(result));
             return true;
         }
@@ -197,6 +222,7 @@ bool ExtractWorker::processSubSounds(FMOD_SOUND *sound, QFileInfo bankFileInfo, 
         result = FMOD_Sound_SeekData(sound_to_play, 0);
         if (result != FMOD_OK)
         {
+            emit updateConsole("Error in FMOD_Sound_SeekData");
             emit taskFinished(FMOD_ErrorString(result));
             return true;
         }
@@ -204,6 +230,7 @@ bool ExtractWorker::processSubSounds(FMOD_SOUND *sound, QFileInfo bankFileInfo, 
         result = FMOD_Sound_GetDefaults(sound_to_play, &ssamplerate, &priority);
         if (result != FMOD_OK)
         {
+            emit updateConsole("Error in FMOD_Sound_GetDefaults");
             emit taskFinished(FMOD_ErrorString(result));
             return true;
         }
@@ -211,6 +238,7 @@ bool ExtractWorker::processSubSounds(FMOD_SOUND *sound, QFileInfo bankFileInfo, 
         result = FMOD_Sound_GetFormat(sound_to_play, &stype, &sformat, &schannels, &sbits);
         if (result != FMOD_OK)
         {
+            emit updateConsole("Error in FMOD_Sound_GetFormat");
             emit taskFinished(FMOD_ErrorString(result));
             return true;
         }
@@ -218,6 +246,7 @@ bool ExtractWorker::processSubSounds(FMOD_SOUND *sound, QFileInfo bankFileInfo, 
         result = FMOD_Sound_GetLength(sound_to_play, &length, FMOD_TIMEUNIT_PCMBYTES);
         if (result != FMOD_OK)
         {
+            emit updateConsole("Error in FMOD_Sound_GetLength");
             emit taskFinished(FMOD_ErrorString(result));
             return true;
         }
@@ -225,6 +254,7 @@ bool ExtractWorker::processSubSounds(FMOD_SOUND *sound, QFileInfo bankFileInfo, 
         result = FMOD_Sound_GetName(sound_to_play, subsoundsName, nameLength);
         if (result != FMOD_OK)
         {
+            emit updateConsole("Error in FMOD_Sound_GetName");
             emit taskFinished(FMOD_ErrorString(result));
             return true;
         }
@@ -265,7 +295,13 @@ bool ExtractWorker::processSubSounds(FMOD_SOUND *sound, QFileInfo bankFileInfo, 
         {
             buffer = (char*)malloc(_chunkSizes[k]);
             result = FMOD_Sound_ReadData(sound_to_play, buffer, _chunkSizes[k], &dataLen);
-            if (result != FMOD_OK) { emit taskFinished(FMOD_ErrorString(result)); emit progressUpdated(0); return true; }
+            if (result != FMOD_OK)
+            {
+                emit updateConsole("Error in FMOD_Sound_ReadData");
+                emit taskFinished(FMOD_ErrorString(result));
+                emit progressUpdated(0);
+                return true;
+            }
 
             if (buffer != 0)
             {

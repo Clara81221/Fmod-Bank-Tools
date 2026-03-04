@@ -38,6 +38,18 @@ private slots:
 
     void on_quality_spinBox_valueChanged(int arg1);
 
+    void on_extractButton_clicked();
+
+    void on_fsbinfoButton_clicked();
+
+    void on_rebuildButton_clicked();
+
+    void extract();
+    void rebuild();
+    void fsbinfo();
+
+    void on_passwordTextBox_textChanged(const QString &arg1);
+
 private:
     Ui::MainWindow *ui;
     QStringList readTextFileToQStringList(const QString& filePath);

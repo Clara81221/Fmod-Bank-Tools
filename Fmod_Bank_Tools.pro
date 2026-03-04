@@ -5,12 +5,23 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 CONFIG += c++17
 
 QMAKE_TARGET_COPYRIGHT = "\\251 Wouldy Mods 2026"
-VERSION = 2.1.3.18
+VERSION = 2.1.3.19
 
-INCLUDEPATH += $$PWD/include
-LIBS += -L$$PWD/lib/
-LIBS += -lfmod64
-LIBS += -lfsbank64
+win32 {
+    INCLUDEPATH += $$PWD/include
+    LIBS += -L$$PWD/lib/
+    LIBS += -lfmod64_vc
+    LIBS += -lfsbank64_vc
+    DESTDIR = $$PWD/builds/win64
+}
+
+unix:!macx {
+    INCLUDEPATH += $$PWD/include
+    LIBS += -L$$PWD/lib/
+    LIBS += -lfmod
+    LIBS += -lfsbank
+    DESTDIR = $$PWD/builds/linux
+}
 
 # You can make your code fail to compile if it uses deprecated APIs.
 # In order to do so, uncomment the following line.
@@ -42,8 +53,6 @@ FORMS += \
     fmod_fsb_list.ui \
     mainwindow.ui
 
-TRANSLATIONS += \
-    Fmod_Bank_Tools_en_AU.ts
 CONFIG += lrelease
 CONFIG += embed_translations
 

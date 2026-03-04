@@ -10,13 +10,13 @@
     <x>0</x>
     <y>0</y>
     <width>800</width>
-    <height>645</height>
+    <height>670</height>
    </rect>
   </property>
   <property name="maximumSize">
    <size>
     <width>800</width>
-    <height>645</height>
+    <height>670</height>
    </size>
   </property>
   <property name="acceptDrops">
@@ -46,9 +46,9 @@
     <property name="geometry">
      <rect>
       <x>3</x>
-      <y>160</y>
+      <y>180</y>
       <width>791</width>
-      <height>391</height>
+      <height>371</height>
      </rect>
     </property>
     <property name="palette">
@@ -107,7 +107,7 @@
     <property name="geometry">
      <rect>
       <x>150</x>
-      <y>30</y>
+      <y>20</y>
       <width>601</width>
       <height>22</height>
      </rect>
@@ -120,7 +120,7 @@
     <property name="geometry">
      <rect>
       <x>150</x>
-      <y>70</y>
+      <y>60</y>
       <width>601</width>
       <height>22</height>
      </rect>
@@ -133,7 +133,7 @@
     <property name="geometry">
      <rect>
       <x>150</x>
-      <y>110</y>
+      <y>100</y>
       <width>601</width>
       <height>22</height>
      </rect>
@@ -145,9 +145,9 @@
    <widget class="QProgressBar" name="progressBar">
     <property name="geometry">
      <rect>
-      <x>630</x>
-      <y>560</y>
-      <width>161</width>
+      <x>10</x>
+      <y>600</y>
+      <width>781</width>
       <height>23</height>
      </rect>
     </property>
@@ -167,47 +167,56 @@
    <widget class="QLabel" name="bankFolderLabel">
     <property name="geometry">
      <rect>
-      <x>44</x>
-      <y>30</y>
-      <width>101</width>
+      <x>5</x>
+      <y>20</y>
+      <width>125</width>
       <height>20</height>
      </rect>
     </property>
     <property name="text">
      <string>Bank Folder Input</string>
     </property>
+    <property name="alignment">
+     <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+    </property>
    </widget>
    <widget class="QLabel" name="wavFolderLabel">
     <property name="geometry">
      <rect>
-      <x>37</x>
-      <y>70</y>
-      <width>101</width>
+      <x>5</x>
+      <y>60</y>
+      <width>125</width>
       <height>20</height>
      </rect>
     </property>
     <property name="text">
      <string>Wav Folder Output</string>
     </property>
+    <property name="alignment">
+     <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+    </property>
    </widget>
    <widget class="QLabel" name="RebuildFolderLabel">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>110</y>
-      <width>121</width>
+      <x>5</x>
+      <y>100</y>
+      <width>125</width>
       <height>20</height>
      </rect>
     </property>
     <property name="text">
      <string>Rebuild Folder Output</string>
     </property>
+    <property name="alignment">
+     <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+    </property>
    </widget>
    <widget class="QPushButton" name="bankFolderButton">
     <property name="geometry">
      <rect>
       <x>760</x>
-      <y>30</y>
+      <y>20</y>
       <width>31</width>
       <height>24</height>
      </rect>
@@ -220,7 +229,7 @@
     <property name="geometry">
      <rect>
       <x>760</x>
-      <y>70</y>
+      <y>60</y>
       <width>31</width>
       <height>24</height>
      </rect>
@@ -233,7 +242,7 @@
     <property name="geometry">
      <rect>
       <x>760</x>
-      <y>110</y>
+      <y>100</y>
       <width>31</width>
       <height>24</height>
      </rect>
@@ -304,6 +313,111 @@
      <string>Quality :</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="extractButton">
+    <property name="geometry">
+     <rect>
+      <x>463</x>
+      <y>560</y>
+      <width>100</width>
+      <height>32</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Extract</string>
+    </property>
+    <property name="icon">
+     <iconset resource="rc.qrc">
+      <normaloff>:/resource/resource/extract_16.png</normaloff>:/resource/resource/extract_16.png</iconset>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="fsbinfoButton">
+    <property name="geometry">
+     <rect>
+      <x>570</x>
+      <y>560</y>
+      <width>100</width>
+      <height>32</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Rebuild</string>
+    </property>
+    <property name="icon">
+     <iconset resource="rc.qrc">
+      <normaloff>:/resource/resource/build.png</normaloff>:/resource/resource/build.png</iconset>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="rebuildButton">
+    <property name="geometry">
+     <rect>
+      <x>677</x>
+      <y>560</y>
+      <width>100</width>
+      <height>32</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>FSB Info</string>
+    </property>
+    <property name="icon">
+     <iconset resource="rc.qrc">
+      <normaloff>:/resource/resource/fmod.png</normaloff>:/resource/resource/fmod.png</iconset>
+    </property>
+   </widget>
+   <widget class="QLabel" name="PasswordLabel">
+    <property name="geometry">
+     <rect>
+      <x>5</x>
+      <y>140</y>
+      <width>125</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Password</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="passwordTextBox">
+    <property name="geometry">
+     <rect>
+      <x>150</x>
+      <y>140</y>
+      <width>521</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="readOnly">
+     <bool>false</bool>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="overrideCheckBox">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>687</x>
+      <y>140</y>
+      <width>94</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>Files that require a password will always use this password when checked.</string>
+    </property>
+    <property name="layoutDirection">
+     <enum>Qt::LayoutDirection::LeftToRight</enum>
+    </property>
+    <property name="text">
+     <string>Override</string>
+    </property>
+    <property name="checkable">
+     <bool>true</bool>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -311,7 +425,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>21</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
